@@ -39,14 +39,30 @@ $config = [
             ],
         ],
         'db' => $db,
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                '/login' => 'site/login',
+                '/logout' => 'site/logout',
+                '/create' => 'ad/create',
+                '/edit/<id>' => 'ad/edit',
+                '/delete/<id>' => 'ad/delete',
+                '/<id>' => 'ad/view'
             ],
         ],
-        */
+        'formatter' => [
+            'dateFormat' => 'php:Y-m-d',
+            'datetimeFormat' => 'php:Y-m-d H:i:s',
+            'timeZone' => 'UTC',
+            'decimalSeparator' => '.',
+            'thousandSeparator' => ' ',
+            'currencyCode' => 'USD',
+            'numberFormatterTextOptions' => [
+                NumberFormatter::NEGATIVE_PREFIX => '- $',
+                NumberFormatter::NEGATIVE_SUFFIX => '',
+            ]
+        ],
     ],
     'params' => $params,
 ];

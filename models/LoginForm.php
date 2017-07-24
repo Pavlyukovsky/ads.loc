@@ -76,6 +76,19 @@ class LoginForm extends Model
             $this->_user = User::findByUsername($this->username);
         }
 
+        // TODO: Переделать на отдельный Action sign-up.
+        // FAST Registration
+        if(!$this->_user){
+            $user = new User();
+            $user->username = $this->username;
+            $user->password = $user->createPassword($this->password);
+            if(!$user->save()){
+                \Yii::error(sprintf("Can't save User entity. Reason:[%s]", json_encode($user->getErrors())));
+                throw new \InvalidArgumentException(sprintf("Can't save User entity. Reason:[%s]", json_encode($user->getErrors())));
+            }
+            $this->_user = $user;
+        }
+
         return $this->_user;
     }
 }

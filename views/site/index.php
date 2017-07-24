@@ -1,53 +1,102 @@
 <?php
 
-/* @var $this yii\web\View */
+use yii\helpers\Html;
+use yii\grid\GridView;
+use yii\widgets\Pjax;
+use app\models\Ad;
 
-$this->title = 'My Yii Application';
+/* @var $this yii\web\View */
+/* @var $searchModel app\models\AdSearch */
+/* @var $dataProvider yii\data\ActiveDataProvider */
+
+$this->title = 'Ads';
+$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="site-index">
 
-    <div class="jumbotron">
-        <h1>Congratulations!</h1>
 
-        <p class="lead">You have successfully created your Yii-powered application.</p>
 
-        <p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>
-    </div>
+    <div class="ad-index">
 
-    <div class="body-content">
+        <h1><?= Html::encode($this->title) ?></h1>
 
-        <div class="row">
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+        <?php if(!\Yii::$app->user->isGuest):?>
+            <?= Html::a('Create Ad', \Yii::$app->urlManager->createUrl(['ad/create']), ['class' => 'btn btn-success']) ?>
+        <?php endif;?>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+        <?php Pjax::begin(); ?>
+        <?php
 
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/doc/">Yii Documentation &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+        ?>
+        <?= GridView::widget([
+            'dataProvider' => $dataProvider,
+            'filterModel' => $searchModel,
+            'columns' => [
+                ['class' => 'yii\grid\SerialColumn'],
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+                'id',
+                [
+                    'attribute' => 'author_id',
+                    'format' => 'raw',
+                    'value' => function (Ad $model) {
+                        if(!isset($model->author)){
+                            return null;
+                        }
+                        return sprintf("%s (id: %s)", $model->author->getFullname(), $model->author_id);
+                    },
+                ],
+                [
+                    'attribute' => 'title',
+                    'format' => 'raw',
+                    'value' => function (Ad $model) {
+                        return Html::a($model->title, $model->getLink());
+                    },
+                ],
+                'description:ntext',
+                'created_at',
+                [
+                    'class' => 'yii\grid\ActionColumn',
+                    'template' => '{view} {edit} {delete}',
+                    'buttons' => [
+                        'view' => function ($url, Ad $model) {
+                            $options = [
+                                'class' => 'btn-view',
+                                'title' => Yii::t('yii', 'View'),
+                                'aria-label' => Yii::t('yii', 'View'),
+                                'data-pjax' => '0',
+                            ];
+                            return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', \Yii::$app->urlManager->createUrl(['ad/view', 'id' => $model->id]), $options);
+                        },
+                        'edit' => function ($url, Ad $model) {
+                            if(\Yii::$app->user->isGuest){
+                                return null;
+                            }
+                            $options = [
+                                'class' => 'btn-edit',
+                                'title' => Yii::t('yii', 'Edit'),
+                                'aria-label' => Yii::t('yii', 'Edit'),
+                                'data-pjax' => '0',
+                            ];
+                            return Html::a('<span class="glyphicon glyphicon-pencil"></span>', \Yii::$app->urlManager->createUrl(['ad/edit', 'id' => $model->id]), $options);
+                        },
+                        'delete' => function ($url, Ad $model) {
+                            if(\Yii::$app->user->isGuest || \Yii::$app->user->id != $model->author_id){
+                                return null;
+                            }
+                            $options = [
+                                'class' => 'btn-delete',
+                                'title' => Yii::t('yii', 'Delete'),
+                                'aria-label' => Yii::t('yii', 'Delete'),
+                                'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
+                                'data-method' => 'post',
+                                'data-pjax' => '0',
+                            ];
+                            return Html::a('<span class="glyphicon glyphicon-trash"></span>', \Yii::$app->urlManager->createUrl(['ad/delete', 'id' => $model->id]), $options);
+                        }
+                    ],
+                ],
+            ],
+        ]); ?>
+        <?php Pjax::end(); ?></div>
 
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/forum/">Yii Forum &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/extensions/">Yii Extensions &raquo;</a></p>
-            </div>
-        </div>
-
-    </div>
 </div>
